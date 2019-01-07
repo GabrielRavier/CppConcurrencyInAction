@@ -22,26 +22,26 @@ OPTIMISATIONS := -O3 -frename-registers
 # OPTIMISATIONS += -flto
 # Link-time optimizing makes the linking super long so it's are unactivated by default
 
-CXXFLAGS = $(CXX) $(OPTIMISATIONS) $(WARNINGS) -std=c++17 -c -MMD -MP -MF $@.d
+CXXFLAGS = $(CXX) $(OPTIMISATIONS) $(WARNINGS) -Isrc -std=c++17 -c -MMD -MP -MF $@.d
 LDFLAGS := $(CXX) $(OPTIMISATIONS) $(WARNINGS) -s
 
-HELLO_CONCURRENT_WORLD_FILES := helloConcurrentWorld
+HELLOCONCURRENTWORLD_FILES := helloConcurrentWorld/main.cpp
 
-HELLO_CONCURRENT_WORLD_OBJS := $(addprefix obj/, $(addsuffix .o, $(HELLO_CONCURRENT_WORLD_FILES)))
-HELLO_CONCURRENT_WORLD_DEPS := $(addsuffix .d, $(HELLO_CONCURRENT_WORLD_OBJS))
+HELLOCONCURRENTWORLD_OBJS := $(addprefix obj/, $(addsuffix .o, $(HELLOCONCURRENTWORLD_FILES)))
+HELLOCONCURRENTWORLD_DEPS := $(addsuffix .d, $(HELLOCONCURRENTWORLD_OBJS))
 
 all: bin/helloConcurrentWorld
 
-bin/helloConcurrentWorld: $(HELLO_CONCURRENT_WORLD_OBJS)
+bin/helloConcurrentWorld: $(HELLOCONCURRENTWORLD_OBJS)
 	@mkdir -p $(@D)
-	$(LDFLAGS) $(HELLO_CONCURRENT_WORLD_OBJS) -o $@
+	$(LDFLAGS) $(HELLOCONCURRENTWORLD_OBJS) -o $@
 
 # general compile
-obj/%.o: src/%.cpp
+obj/%.o: src/%
 	@mkdir -p $(@D)
 	$(CXXFLAGS) $< -o $@
 	
-include $(wildcard $(DEPS))
+include $(wildcard $(HELLOCONCURRENTWORLD_DEPS))
 
 # Remove all objects files and the binary
 clean:
