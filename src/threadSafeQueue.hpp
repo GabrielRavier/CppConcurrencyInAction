@@ -30,7 +30,7 @@ public:
     void push(T newVal)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_dataQueue.push(newVal);
+        m_dataQueue.push(std::move(newVal));
         m_dataCond.notify_one();
     }
 
@@ -39,8 +39,8 @@ public:
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         if (m_dataQueue.empty())
-            return false;
-        val = m_dataQueue.front();
+            return false;   // No value could be retrieved
+        val = std::move(m_dataQueue.front());
         m_dataQueue.pop();
         return true;
     }
@@ -50,8 +50,8 @@ public:
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         if (m_dataQueue.empty())
-            return std::shared_ptr<T>();
-        auto result(std::make_shared<T>(m_dataQueue.front()));
+            return std::shared_ptr<T>();    // No value could be retrieved
+        auto result(std::make_shared<T>(std::move(m_dataQueue.front())));
         m_dataQueue.pop();
         return result;
     }
@@ -60,15 +60,15 @@ public:
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_dataCond.wait(lock, [this] {return !m_dataQueue.empty();});
-        value = m_dataQueue.front();
+        value = std::move(m_dataQueue.front());
         m_dataQueue.pop();
     }
 
     std::shared_ptr<T> waitAndPop()
     {
         std::unique_lock<std::mutex> lock(m_mutex);
-        m_dataCond.wait(lock, [this]{return !m_dataQueue.empty();});
-        auto result(std::make_shared<T>(m_dataQueue.front()));
+        m_dataCond.wait(lock, [this]{return !m_dataQueue.empty();});    // 4
+        auto result(std::make_shared<T>(std::move(m_dataQueue.front())));
         m_dataQueue.pop();
         return result;
     }
