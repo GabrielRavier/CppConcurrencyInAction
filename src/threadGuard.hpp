@@ -4,25 +4,25 @@
 namespace ravier
 {
 
-class threadGuard
+class ThreadGuard
 {
 private:
     std::thread& m_thread;
 
 public:
-    explicit threadGuard(std::thread& t) : m_thread(t)
+    explicit ThreadGuard(std::thread& t) : m_thread(t)
     {
 
     }
 
-    ~threadGuard()
+    ~ThreadGuard()
     {
-        if (m_thread.joinable())
+        if (m_thread.joinable()) // Join if joinable
             m_thread.join();
     }
 
-    threadGuard(threadGuard const&) = delete;
-    threadGuard& operator=(threadGuard const&) = delete;
+    ThreadGuard(ThreadGuard const&) = delete; // Disable copy constructor and copy-assignment operators
+    ThreadGuard& operator=(ThreadGuard const&) = delete;
 };
 
 }

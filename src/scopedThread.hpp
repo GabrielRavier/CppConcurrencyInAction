@@ -4,25 +4,25 @@
 namespace ravier
 {
 
-class scopedThread
+class ScopedThread
 {
 private:
 	std::thread m_thread;
 
 public:
-	explicit scopedThread(std::thread t) : m_thread(std::move(t))
+	explicit ScopedThread(std::thread t) : m_thread(std::move(t))
 	{
-		if (!m_thread.joinable())
+		if (!m_thread.joinable()) // Throw exception if thread is not joinable
 			throw std::logic_error("Thread was not joinable (no thread)");
 	}
 
-	~scopedThread()
+	~ScopedThread()
 	{
 		m_thread.join();
 	}
 
-	scopedThread(scopedThread const&) = delete;
-	scopedThread& operator=(scopedThread const&) = delete;
+	ScopedThread(ScopedThread const&) = delete;
+	ScopedThread& operator=(ScopedThread const&) = delete;
 };
 
 }

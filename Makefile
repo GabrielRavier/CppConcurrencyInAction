@@ -25,7 +25,7 @@ OPTIMISATIONS := -O3 -frename-registers
 CXXFLAGS = $(CXX) $(OPTIMISATIONS) $(WARNINGS) -Isrc -std=c++17 -c -MMD -MP -MF $@.d
 LDFLAGS := $(CXX) $(OPTIMISATIONS) $(WARNINGS) -s
 
-HELLOCONCURRENTWORLD_FILES := helloConcurrentWorld/main.cpp
+HELLOCONCURRENTWORLD_FILES := helloConcurrentWorld/main
 
 HELLOCONCURRENTWORLD_OBJS := $(addprefix obj/, $(addsuffix .o, $(HELLOCONCURRENTWORLD_FILES)))
 HELLOCONCURRENTWORLD_DEPS := $(addsuffix .d, $(HELLOCONCURRENTWORLD_OBJS))
@@ -37,7 +37,7 @@ bin/helloConcurrentWorld: $(HELLOCONCURRENTWORLD_OBJS)
 	$(LDFLAGS) $(HELLOCONCURRENTWORLD_OBJS) -o $@
 
 # general compile
-obj/%.o: src/%
+obj/%.o: src/%.cpp
 	@mkdir -p $(@D)
 	$(CXXFLAGS) $< -o $@
 	

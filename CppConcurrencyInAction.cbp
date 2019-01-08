@@ -20,8 +20,11 @@
 			</Target>
 		</Build>
 		<Unit filename="src/helloConcurrentWorld/main.cpp" />
+		<Unit filename="src/hierarchicalMutex.hpp" />
 		<Unit filename="src/scopedThread.hpp" />
 		<Unit filename="src/threadGuard.hpp" />
+		<Unit filename="src/threadSafeQueue.hpp" />
+		<Unit filename="src/threadSafeStack.hpp" />
 		<Extensions>
 			<code_completion>
 				<search_path add="C:\MSYS32\mingw32\include" />
