@@ -1,4 +1,5 @@
 #pragma once
+#include <list>
 #include <functional>
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
@@ -13,8 +14,8 @@ private:
     {
     private:
         typedef std::pair<Key, Value> BucketValue;
-        typedef std::list<bucketValue> BucketData;
-        typedef typename bucketData::iterator BucketIterator;
+        typedef std::list<BucketValue> BucketData;
+        typedef typename BucketData::iterator BucketIterator;
 
         BucketData m_data;
         mutable boost::shared_mutex m_mutex;
@@ -35,7 +36,7 @@ private:
             const BucketIterator foundEntry = this->findEntryFor(key);
             return (foundEntry == m_data.end()) ? defaultValue : foundEntry->second;
         }
-    }
-}
+    };
+};
 
 }
