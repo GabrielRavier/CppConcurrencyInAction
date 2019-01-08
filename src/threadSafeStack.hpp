@@ -36,17 +36,18 @@ public:
 	void push(T newValue)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
-		m_actualStack.push(newValue);
+		m_actualStack.push(std::move(newValue));	// May throw but std::stack guarantees it'll be safe 
 	}
 
 	std::shared_ptr<T> pop()
 	{
 	    std::lock_guard<std::mutex> lock(m_mutex);
-	    if (m_actualStack.empty()) // Check for empty before trying to pop value
-            throw EmptyStack();
+	    if (m_actualStack.empty())	// Check for empty before trying to pop value
+            throw EmptyStack();	// Nothing changed so no problems
 		// Allocate return value before modifying stack
-        auto const result(std::make_shared<T>(m_actualStack.top()));
-        m_actualStack.pop();
+		// May throw but std guarantees no memory leaks
+        auto const result(std::make_shared<T>(std::move(m_actualStack.top())));
+        m_actualStack.pop(); // Cannot throw
         return result;
 	}
 
@@ -55,8 +56,8 @@ public:
 	    std::lock_guard<std::mutex> lock(m_mutex);
 	    if (m_actualStack.empty())
             throw EmptyStack();
-        value = m_actualStack.top();
-        m_actualStack.pop();
+        value = std::move(m_actualStack.top()); // Can throw but np
+        m_actualStack.pop(); // Cannot throw
 	}
 
 	bool empty() const
