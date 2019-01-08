@@ -24,6 +24,7 @@ public:
         std::lock_guard<std::mutex> lock(other.m_mutex);
         m_dataQueue = other.m_dataQueue;
     }
+
     ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete; // Disallow assignment for simplicity
 
     void push(T newVal)
@@ -33,8 +34,27 @@ public:
         m_dataCond.notify_one();
     }
 
-    bool tryPop(T& val);    // Store retrieved value in the referenced variable, retval for status
-    std::shared_ptr<T> tryPop(); // Pointer being nullptr for status
+    // Store retrieved value in the referenced variable, retval to check for failure
+    bool tryPop(T& val)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (m_dataQueue.empty())
+            return false;
+        val = m_dataQueue.front();
+        m_dataQueue.pop();
+        return true;
+    }
+
+    // Return nullptr if fail
+    std::shared_ptr<T> tryPop()
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (m_dataQueue.empty())
+            return std::shared_ptr<T>();
+        auto result(std::make_shared<T>(m_dataQueue.front()));
+        m_dataQueue.pop();
+        return result;
+    }
 
     void waitAndPop(T& value)
     {
@@ -43,9 +63,21 @@ public:
         value = m_dataQueue.front();
         m_dataQueue.pop();
     }
-    std::shared_ptr<T> waitAndPop();
 
-    bool empty() const;
+    std::shared_ptr<T> waitAndPop()
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_dataCond.wait(lock, [this]{return !m_dataQueue.empty();});
+        auto result(std::make_shared<T>(m_dataQueue.front()));
+        m_dataQueue.pop();
+        return result;
+    }
+
+    bool empty() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_dataQueue.empty();
+    }
 };
 
 }
